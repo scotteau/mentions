@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {UserService} from '../user.service';
 
 export interface IUser {
@@ -17,11 +17,10 @@ export interface ICommentToken {
   templateUrl: './editor-field.component.html',
   styleUrls: ['./editor-field.component.scss']
 })
-export class EditorFieldComponent implements OnInit {
+export class EditorFieldComponent implements OnInit, AfterViewInit {
 
   allUsers: IUser[] = [];
   comment: ICommentToken[] = [];
-  content: string;
   selectedUser: IUser;
   @ViewChild('textarea') field: ElementRef;
 
@@ -39,14 +38,33 @@ export class EditorFieldComponent implements OnInit {
     if (!this.selectedUser) return;
 
     const separator = `@${this.selectedUser.name}`;
-    const tokenized = this.field.nativeElement.innerHTML.split(separator);
+    let tokens = this.field.nativeElement.innerHTML.split(separator);
 
-    this.content = tokenized.join(`<strong>@${this.selectedUser.name}</strong> `);
+    this.field.nativeElement.innerHTML = tokens.join(`<strong>@${this.selectedUser.name}</strong>`) + "&nbsp";
 
-    console.log(this.content);
-    this.field.nativeElement.innerHTML = this.content;
-
-    tokenized.push(separator);
+    tokens.push(separator);
     this.selectedUser = undefined;
+    this.moveCaret();
+  }
+
+  private moveCaret():void {
+    const el = this.field.nativeElement;
+    console.log(el.childNodes);
+    console.dir(el)
+
+    const anchor = el.childNodes[el.childNodes.length-1]
+
+    console.log(anchor);
+
+    let range = document.createRange();
+    let selection = window.getSelection();
+
+    range.setStartAfter(anchor);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  ngAfterViewInit(): void {
   }
 }
