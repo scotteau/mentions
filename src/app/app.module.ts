@@ -3,14 +3,16 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import {EditorFieldComponent} from './editor-field/editor-field.component';
+import {MentionModule} from 'angular-mentions';
 
 @NgModule({
   declarations: [
     AppComponent,
-    EditorFieldComponent
+    EditorFieldComponent,
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    MentionModule
   ],
   providers: [],
   bootstrap: [AppComponent]

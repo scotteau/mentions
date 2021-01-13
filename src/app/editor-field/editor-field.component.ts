@@ -19,8 +19,6 @@ export class EditorFieldComponent implements OnInit {
 
   ngOnInit(): void {
     this.allUsers = this.userService.getUsers();
-
-    console.log(this.allUsers);
   }
 
 }
