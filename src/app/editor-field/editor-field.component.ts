@@ -1,4 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import {UserService} from '../user.service';
+
+
+export interface IUser {
+  id: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-editor-field',
@@ -7,9 +14,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EditorFieldComponent implements OnInit {
 
-  constructor() { }
+  allUsers: IUser[] = [];
+  constructor(private readonly userService: UserService) { }
 
   ngOnInit(): void {
+    this.allUsers = this.userService.getUsers();
+
+    console.log(this.allUsers);
   }
 
 }
