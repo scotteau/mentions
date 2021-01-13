@@ -21,7 +21,9 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 
   allUsers: IUser[] = [];
   comment: ICommentToken[] = [];
-  selectedUser: IUser;
+  currentSelectedUser: IUser;
+  mentionedUsersById = new Set<string>();
+
   @ViewChild('textarea') field: ElementRef;
 
   constructor(private readonly userService: UserService) { }
@@ -31,30 +33,35 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   onItemSelected(user: IUser) {
-    this.selectedUser = user;
+    this.currentSelectedUser = user;
+    this.mentionedUsersById.add(user.id);
+
+    console.log(this.mentionedUsersById);
   }
 
   onClosed() {
-    if (!this.selectedUser) return;
+    if (!this.currentSelectedUser) return;
 
-    const separator = `@${this.selectedUser.name}`;
+    const separator = `@${this.currentSelectedUser.name}`;
     let tokens = this.field.nativeElement.innerHTML.split(separator);
 
-    this.field.nativeElement.innerHTML = tokens.join(`<strong>@${this.selectedUser.name}</strong>`) + "&nbsp";
+    this.field.nativeElement.innerHTML = tokens.join(`<span style="background:crimson; padding: 0.25rem 0.5rem; color: white; border-radius: 1rem;">@${this.currentSelectedUser.name}</span>`) + "&nbsp";
 
     tokens.push(separator);
-    this.selectedUser = undefined;
+    this.currentSelectedUser = undefined;
     this.moveCaret();
+
+    console.log(this.field.nativeElement.innerHTML);
   }
 
   private moveCaret():void {
     const el = this.field.nativeElement;
-    console.log(el.childNodes);
-    console.dir(el)
+    // console.log(el.childNodes);
+    // console.dir(el)
 
     const anchor = el.childNodes[el.childNodes.length-1]
 
-    console.log(anchor);
+    // console.log(anchor);
 
     let range = document.createRange();
     let selection = window.getSelection();
