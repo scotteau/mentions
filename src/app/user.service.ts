@@ -14,7 +14,7 @@ export class UserService {
     const result = [];
     for (let i = 0; i < 50; i++) {
       const user: IUser = {
-        name: fakerStatic.name.firstName(),
+        name: `${fakerStatic.name.firstName()} ${fakerStatic.name.lastName()}`,
         id: fakerStatic.random.uuid()
       }
       result.push(user);

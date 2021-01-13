@@ -1,4 +1,8 @@
 <div class="editor-field" contenteditable="true"
+     #textarea
      [mention]="allUsers"
      [mentionConfig]="{labelKey: 'name'}"
+     (itemSelected)="onItemSelected($event)"
+     (closed)="onClosed()"
 ></div>
+
