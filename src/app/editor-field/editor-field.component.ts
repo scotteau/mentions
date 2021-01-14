@@ -6,11 +6,6 @@ export interface IUser {
   name: string;
 }
 
-export interface ICommentToken {
-  type: 'text' | 'mention';
-  content: string;
-  payload?: IUser | any;
-}
 
 @Component({
   selector: 'app-editor-field',
@@ -20,7 +15,6 @@ export interface ICommentToken {
 export class EditorFieldComponent implements OnInit, AfterViewInit {
 
   allUsers: IUser[] = [];
-  comment: ICommentToken[] = [];
   currentSelectedUser: IUser;
   mentionedUsersById = new Set<string>();
 
@@ -40,18 +34,8 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   onClosed() {
-    if (!this.currentSelectedUser) return;
-
-    const separator = `@${this.currentSelectedUser.name}`;
-    let tokens = this.field.nativeElement.innerHTML.split(separator);
-
-    this.field.nativeElement.innerHTML = tokens.join(`<span style="background:crimson; padding: 0.25rem 0.5rem; color: white; border-radius: 1rem;">@${this.currentSelectedUser.name}</span>`) + "&nbsp";
-
-    tokens.push(separator);
-    this.currentSelectedUser = undefined;
+    console.log(this.field.nativeElement.innerText);
     this.moveCaret();
-
-    console.log(this.field.nativeElement.innerHTML);
   }
 
   private moveCaret():void {
