@@ -4,6 +4,13 @@
      [mentionConfig]="{labelKey: 'name'}"
      (itemSelected)="onItemSelected($event)"
      (closed)="onClosed()"
-></div>
+>
+  <ng-container *ngFor="let item of comments; let index">
+    <span *ngIf="item.type === 'text'">{{item.content + ' '}}</span>
+    <ng-container *ngIf="item.type === 'mention'">
+      <span class="chip">@{{item.content}}</span>
+    </ng-container>
+  </ng-container>
+</div>
 
 <span class="chip">hello</span>

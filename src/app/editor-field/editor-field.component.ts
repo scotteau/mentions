@@ -9,7 +9,7 @@ export interface IUser {
 export interface ICommentToken {
   type: 'text' | 'mention';
   content: string;
-  payload?: IUser | any;
+  payload?: IUser;
 }
 
 @Component({
@@ -23,10 +23,31 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   comment: ICommentToken[] = [];
   currentSelectedUser: IUser;
   mentionedUsersById = new Set<string>();
+  pattern = /([@#][\w_-]+)/g;
+
+
+  comments: ICommentToken[] = [
+    {type: 'text', content: 'hello'},
+    {
+      type: 'mention',
+      content: 'Scott Wang',
+      payload: {name: 'Scott Wang', id: '0sdkfsjdfs'}
+    },
+    {type: 'text', content: ','},
+    {
+      type: 'mention',
+      content: 'Grace Yan',
+      payload: {name: 'Grace Yan', id: 'lskdflskd'}
+    },
+    {
+      type: 'text', content: 'world'
+    }
+  ];
 
   @ViewChild('textarea') field: ElementRef;
 
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {
+  }
 
   ngOnInit(): void {
     this.allUsers = this.userService.getUsers();
@@ -34,32 +55,44 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 
   onItemSelected(user: IUser) {
     this.currentSelectedUser = user;
-    this.mentionedUsersById.add(user.id);
-
-    console.log(this.mentionedUsersById);
+    // this.mentionedUsersById.add(user.id);
+    //
+    // console.log(this.mentionedUsersById);
   }
 
   onClosed() {
-    if (!this.currentSelectedUser) return;
+    // if (!this.currentSelectedUser) return;
+    //
+    // const separator = `@${this.currentSelectedUser.name}`;
+    // let tokens = this.field.nativeElement.innerHTML.split(separator);
+    //
+    // this.field.nativeElement.innerHTML = tokens.join(`<span style="background:crimson; padding: 0.25rem 0.5rem; color: white; border-radius: 1rem;">@${this.currentSelectedUser.name}</span>`) + "&nbsp";
+    //
+    // tokens.push(separator);
+    // this.currentSelectedUser = undefined;
+    // this.moveCaret();
+    //
+    // console.log(this.field.nativeElement.innerHTML);
 
+    if (!this.currentSelectedUser) {
+      return;
+    }
     const separator = `@${this.currentSelectedUser.name}`;
     let tokens = this.field.nativeElement.innerHTML.split(separator);
 
-    this.field.nativeElement.innerHTML = tokens.join(`<span style="background:crimson; padding: 0.25rem 0.5rem; color: white; border-radius: 1rem;">@${this.currentSelectedUser.name}</span>`) + "&nbsp";
+    console.log(this.field.nativeElement.innerText);
 
-    tokens.push(separator);
-    this.currentSelectedUser = undefined;
+
     this.moveCaret();
 
-    console.log(this.field.nativeElement.innerHTML);
   }
 
-  private moveCaret():void {
+  private moveCaret(): void {
     const el = this.field.nativeElement;
     // console.log(el.childNodes);
     // console.dir(el)
 
-    const anchor = el.childNodes[el.childNodes.length-1]
+    const anchor = el.childNodes[el.childNodes.length - 1];
 
     // console.log(anchor);
 
