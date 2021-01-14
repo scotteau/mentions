@@ -30,12 +30,18 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     this.currentSelectedUser = user;
     this.mentionedUsersById.add(user.id);
 
-    console.log(this.mentionedUsersById);
   }
 
   onClosed() {
-    console.log(this.field.nativeElement.innerText);
     this.moveCaret();
+  }
+
+  ngAfterViewInit(): void {
+  }
+
+  onCtrlEnter() {
+    const text = this.field.nativeElement.innerText;
+    console.log(text);
   }
 
   private moveCaret():void {
@@ -54,8 +60,5 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     range.collapse(true);
     selection.removeAllRanges();
     selection.addRange(range);
-  }
-
-  ngAfterViewInit(): void {
   }
 }
