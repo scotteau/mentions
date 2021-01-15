@@ -98,12 +98,17 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
         .map((id) => this.allUsersDictionary[id])
         .filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
 
-      console.log(mentionedUsers);
+      mentionedNames.forEach((name) => {
+        console.log(name);
+        const pattern = RegExp(`<.+>${name}<\/.+>`, 'g');
+
+      })
+
 
     }
   }
 
-  private retrieveUserData() {
 
-  }
+
+
 }
