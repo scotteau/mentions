@@ -8,6 +8,7 @@ import {IUser, UserService} from '../user.service';
 })
 export class EditorFieldComponent implements OnInit, AfterViewInit {
 
+  private allUsersDictionary: { [id: string]: IUser };
   allUsers: IUser[] = [];
   currentSelectedUser: IUser;
   mentionedUsersById = new Set<string>();
@@ -20,7 +21,7 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.allUsers = this.userService.getUsers();
-
+    this.allUsersDictionary = this.arrayToDictionary(this.allUsers);
     console.log(this.allUsers);
   }
 
@@ -41,15 +42,12 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   onSubmit() {
     const text = this.field.nativeElement.innerText;
 
-    console.log(text);
-    console.log(this.mentionedUsersById);
-
     const result = text.match(this.pattern);
-    console.log(result);
+    const mentionedNames = result.map(u => u.split('@')[1]);
+    const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
+    const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
 
-    result.map(u => {})
-
-
+    console.log(mentionedUsers);
     this.clearField();
   }
 
@@ -73,5 +71,13 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 
   private clearField(): void {
     this.field.nativeElement.innerText = '';
+  }
+
+  private arrayToDictionary(users: IUser[]): { [id: string]: IUser } {
+    let dictionary: { [id: string]: IUser } = {};
+    users.forEach((user) => {
+      dictionary[user.id] = user;
+    });
+    return dictionary;
   }
 }
