@@ -1,5 +1,6 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, Output, ViewChild} from '@angular/core';
 import {IUser, UserService} from '../user.service';
+import {EventEmitter} from '@angular/core';
 
 @Component({
   selector: 'app-editor-field',
@@ -25,6 +26,10 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     console.log(this.allUsers);
   }
 
+  ngAfterViewInit(): void {
+
+  }
+
   onItemSelected(user: IUser) {
     this.currentSelectedUser = user;
     this.mentionedUsersById.add(user.id);
@@ -36,8 +41,6 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     this.moveCaret();
   }
 
-  ngAfterViewInit(): void {
-  }
 
   onSubmit() {
     const text = this.field.nativeElement.innerText;
@@ -80,5 +83,13 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
       dictionary[user.id] = user;
     });
     return dictionary;
+  }
+
+  onContentChange(e: any) {
+    const text = e.target.innerText;
+
+
+
+    console.log(text);
   }
 }
