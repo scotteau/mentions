@@ -42,12 +42,13 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   onSubmit() {
     const text = this.field.nativeElement.innerText;
 
-    const result = text.match(this.pattern);
-    const mentionedNames = result.map(u => u.split('@')[1]);
-    const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
-    const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
-
-    console.log(mentionedUsers);
+    if (text && text.trim()) {
+      const result = text.match(this.pattern);
+      const mentionedNames = result.map(u => u.split('@')[1]);
+      const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
+      const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
+      console.log(mentionedUsers);
+    }
     this.clearField();
   }
 
