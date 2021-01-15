@@ -25,7 +25,6 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.allUsers = this.userService.getUsers();
     this.allUsersDictionary = this.arrayToDictionary(this.allUsers);
-    console.log(this.allUsers);
   }
 
   ngAfterViewInit(): void {
@@ -36,7 +35,7 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     this.currentSelectedUser = user;
     this.mentionedUsersById.add(user.id);
 
-    console.log(this.mentionedUsersById);
+    // console.log(this.mentionedUsersById);
   }
 
   onClosed() {
@@ -52,7 +51,7 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
       const mentionedNames = result.map(u => u.split('@')[1]);
       const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
       const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
-      console.log(mentionedUsers);
+      // console.log(mentionedUsers);
     }
     this.clearField();
   }
@@ -90,9 +89,21 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   onContentChange(e: any) {
     const innerHTML = e.target.innerHTML;
 
+    const roughParse = innerHTML.match(this.pattern_mention);
 
+    if (roughParse) {
+      console.log(roughParse);
+      const mentionedNames = roughParse.map((u) => u.split('@')[1]);
+      const mentionedUsers = [...this.mentionedUsersById]
+        .map((id) => this.allUsersDictionary[id])
+        .filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
 
+      console.log(mentionedUsers);
 
-    console.log(innerHTML);
+    }
+  }
+
+  private retrieveUserData() {
+
   }
 }
