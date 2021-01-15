@@ -13,7 +13,9 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   allUsers: IUser[] = [];
   currentSelectedUser: IUser;
   mentionedUsersById = new Set<string>();
-  pattern = /[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}/g;
+
+  pattern_mention = /[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}/g;
+  pattern_tag = /<.+>[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}<\/.+>/g;
 
   @ViewChild('textarea') field: ElementRef;
 
@@ -46,7 +48,7 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     const text = this.field.nativeElement.innerText;
 
     if (text && text.trim()) {
-      const result = text.match(this.pattern);
+      const result = text.match(this.pattern_mention);
       const mentionedNames = result.map(u => u.split('@')[1]);
       const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
       const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
@@ -86,10 +88,11 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   onContentChange(e: any) {
-    const text = e.target.innerText;
+    const innerHTML = e.target.innerHTML;
 
 
 
-    console.log(text);
+
+    console.log(innerHTML);
   }
 }
