@@ -1,6 +1,17 @@
 import { Injectable } from '@angular/core';
 import * as fakerStatic from 'faker';
-import {IUser} from './editor-field/editor-field.component';
+
+// displayName: "Craig Summer"
+// email: "craig.summer@silverhorsetech.com"
+// id: "7673B526-68A1-4C27-A4FD-00079B8F20AD"
+// username: "CSummer"
+
+export interface IUser {
+  id: string;
+  username: string;
+  email: string;
+  displayName: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +24,13 @@ export class UserService {
 
     const result = [];
     for (let i = 0; i < 50; i++) {
+      const firstName = fakerStatic.name.firstName();
+      const lastName = fakerStatic.name.lastName();
       const user: IUser = {
-        name: `${fakerStatic.name.firstName()} ${fakerStatic.name.lastName()}`,
-        id: fakerStatic.random.uuid()
+        displayName: `${firstName} ${lastName}`,
+        id: fakerStatic.random.uuid(),
+        email: fakerStatic.internet.email(firstName, lastName, 'silverhorsetech.com'),
+        username: `${firstName[0]}${lastName}`
       }
       result.push(user);
     }

@@ -1,9 +1,9 @@
 <div class="editor-field" contenteditable="true"
      #textarea
      [mention]="allUsers"
-     [mentionConfig]="{labelKey: 'name'}"
+     [mentionConfig]="{labelKey: 'displayName'}"
      (itemSelected)="onItemSelected($event)"
      (closed)="onClosed()"
-     (ctrl-enter)="onCtrlEnter()"
+     (ctrl-enter)="onSubmit()"
 ></div>
 
