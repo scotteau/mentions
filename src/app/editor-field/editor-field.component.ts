@@ -14,8 +14,8 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   currentSelectedUser: IUser;
   mentionedUsersById = new Set<string>();
 
-  pattern_mention = /[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}/g;
-  pattern_tag = /<.+>[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}<\/.+>/g;
+  patternMention = /[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}/g;
+  patternTag = /<.+>[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}<\/.+>/g;
 
   @ViewChild('textarea') field: ElementRef;
 
@@ -31,23 +31,23 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 
   }
 
-  onItemSelected(user: IUser) {
+  onItemSelected(user: IUser): void {
     this.currentSelectedUser = user;
     this.mentionedUsersById.add(user.id);
 
     // console.log(this.mentionedUsersById);
   }
 
-  onClosed() {
+  onClosed(): void {
     this.moveCaret();
   }
 
 
-  onSubmit() {
+  onSubmit(): void {
     const text = this.field.nativeElement.innerText;
 
     if (text && text.trim()) {
-      const result = text.match(this.pattern_mention);
+      const result = text.match(this.patternMention);
       const mentionedNames = result.map(u => u.split('@')[1]);
       const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
       const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
@@ -65,8 +65,8 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 
     // console.log(anchor);
 
-    let range = document.createRange();
-    let selection = window.getSelection();
+    const range = document.createRange();
+    const selection = window.getSelection();
 
     range.setStartAfter(anchor);
     range.collapse(true);
@@ -79,17 +79,17 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   private arrayToDictionary(users: IUser[]): { [id: string]: IUser } {
-    let dictionary: { [id: string]: IUser } = {};
+    const dictionary: { [id: string]: IUser } = {};
     users.forEach((user) => {
       dictionary[user.id] = user;
     });
     return dictionary;
   }
 
-  onContentChange(e: any) {
+  onContentChange(e: any): void{
     const innerHTML = e.target.innerHTML;
 
-    const roughParse = innerHTML.match(this.pattern_mention);
+    const roughParse = innerHTML.match(this.patternMention);
 
     if (roughParse) {
       console.log(roughParse);
@@ -102,13 +102,11 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
         console.log(name);
         const pattern = RegExp(`<.+>${name}<\/.+>`, 'g');
 
-      })
+      });
 
 
     }
   }
-
-
 
 
 }
