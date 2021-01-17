@@ -1,6 +1,5 @@
-import {AfterViewInit, Component, ElementRef, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {IUser, UserService} from '../user.service';
-import {EventEmitter} from '@angular/core';
 
 @Component({
   selector: 'app-editor-field',
@@ -14,8 +13,8 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   currentSelectedUser: IUser;
   mentionedUsersById = new Set<string>();
 
-  patternMention = /[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}/g;
-  patternTag = /<.+>[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}<\/.+>/g;
+  patternName = /[@][\w]{2,}\s[\w]{2,}/;
+  patternWrapped = /<.+>[@][\w]{2,}\s[\w]{2,}<\/.+?>/;
 
   @ViewChild('textarea') field: ElementRef;
 
@@ -47,7 +46,7 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     const text = this.field.nativeElement.innerText;
 
     if (text && text.trim()) {
-      const result = text.match(this.patternMention);
+      const result = text.match(new RegExp(this.patternName, 'g'));
       const mentionedNames = result.map(u => u.split('@')[1]);
       const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
       const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
@@ -86,27 +85,26 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     return dictionary;
   }
 
-  onContentChange(e: any): void{
-    const innerHTML = e.target.innerHTML;
-
-    const roughParse = innerHTML.match(this.patternMention);
-
-    if (roughParse) {
-      console.log(roughParse);
-      const mentionedNames = roughParse.map((u) => u.split('@')[1]);
-      const mentionedUsers = [...this.mentionedUsersById]
-        .map((id) => this.allUsersDictionary[id])
-        .filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
-
-      mentionedNames.forEach((name) => {
-        console.log(name);
-        const pattern = RegExp(`<.+>${name}<\/.+>`, 'g');
-
-      });
+  onContentChange(e: any): void {
+    let innerHTML: string = e.target.innerHTML;
 
 
-    }
   }
 
 
+
+  private findMentionedUsersData(names: string[]): IUser[] {
+    return [...this.mentionedUsersById]
+      .map((id) => this.allUsersDictionary[id])
+      .filter((user) => names.indexOf(user.displayName) >= 0);
+  }
+
+  private nameRegex(name: string, wrapped: boolean = false): RegExp {
+    return wrapped ? new RegExp(`^(<.+>${name}(<\/.+>)$)`) : new RegExp(`${name}`);
+  }
+
+  private wrapNameInTag(content: string): string {
+    return `<strong>${content}</strong>&nbsp;`;
+  }
 }
+
