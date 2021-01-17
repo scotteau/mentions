@@ -22,5 +22,12 @@
   &:focus {
     outline-color: darkgray;
   }
+
+  ::ng-deep .mat-chip {
+    color: white;
+    background: crimson;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+  }
 }
 

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {IUser, UserService} from '../user.service';
 
 @Component({
@@ -30,23 +30,18 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-
   }
 
   onItemSelected(user: IUser): void {
     this.currentSelectedUser = user;
     this.mentionedUsersById.add(user.id);
-
-    console.log('selected');
-
-    // console.log(this.mentionedUsersById);
   }
 
   onClosed(): void {
-
-    console.log('closed');
+    this.field.nativeElement.innerHTML = this.htmlContent;
     this.moveCaret();
     this.currentSelectedUser = null;
+    this.htmlContent = '';
   }
 
 
@@ -58,7 +53,6 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
       const mentionedNames = result.map(u => u.split('@')[1]);
       const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
       const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
-      // console.log(mentionedUsers);
     }
     this.clearField();
   }
@@ -96,17 +90,17 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 // endregion
 
   onInput(e: any): void {
-    console.log(e);
+    let innerText: string = e.target.innerText;
 
-    let innerHTML: string = e.target.innerHTML;
+    if (e.target.textContent === '') {
+      console.log("empty");
+      this.htmlContent = '';
+      this.renderer.setProperty(this.field.nativeElement, 'innerHTML', '');
+      return;
+    }
 
-    const names = this.getMentionedNames(innerHTML);
-    this.htmlContent = this.putNamesWithTaggedNames(innerHTML, names);
-
-    e.target.innerHTML = this.htmlContent;
-
-
-    this.moveCaret();
+    const names = this.getMentionedNames(innerText);
+    this.htmlContent = this.putNamesWithTaggedNames(innerText, names);
   }
 
 
@@ -121,7 +115,7 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   private wrapNameInTag(content: string): string {
-    return `<strong>${content}</strong>&nbsp;`;
+    return `<span class="mat-chip">${content}</span>&nbsp;`;
   }
 
   private getMentionedNames(content: string): string[] {
