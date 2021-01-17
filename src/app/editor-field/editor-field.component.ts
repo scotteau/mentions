@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {IUser, UserService} from '../user.service';
 
 @Component({
@@ -16,9 +16,12 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   patternName = /[@][\w]{2,}\s[\w]{2,}/;
   patternWrapped = /<.+>[@][\w]{2,}\s[\w]{2,}<\/.+?>/;
 
+  htmlContent: string;
+
   @ViewChild('textarea') field: ElementRef;
 
-  constructor(private readonly userService: UserService) {
+  //region - hidden
+  constructor(private readonly userService: UserService, private readonly renderer: Renderer2) {
   }
 
   ngOnInit(): void {
@@ -34,11 +37,16 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     this.currentSelectedUser = user;
     this.mentionedUsersById.add(user.id);
 
+    console.log('selected');
+
     // console.log(this.mentionedUsersById);
   }
 
   onClosed(): void {
+
+    console.log('closed');
     this.moveCaret();
+    this.currentSelectedUser = null;
   }
 
 
@@ -85,12 +93,21 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
     return dictionary;
   }
 
-  onContentChange(e: any): void {
+// endregion
+
+  onInput(e: any): void {
+    console.log(e);
+
     let innerHTML: string = e.target.innerHTML;
 
+    const names = this.getMentionedNames(innerHTML);
+    this.htmlContent = this.putNamesWithTaggedNames(innerHTML, names);
 
+    e.target.innerHTML = this.htmlContent;
+
+
+    this.moveCaret();
   }
-
 
 
   private findMentionedUsersData(names: string[]): IUser[] {
@@ -105,6 +122,22 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 
   private wrapNameInTag(content: string): string {
     return `<strong>${content}</strong>&nbsp;`;
+  }
+
+  private getMentionedNames(content: string): string[] {
+    const mentions = content.match(new RegExp(this.patternName, 'g'));
+    const listOfUniqueNames = new Set<string>();
+    if (mentions) {
+      mentions.forEach((m) => listOfUniqueNames.add(m));
+    }
+    return [...listOfUniqueNames];
+  }
+
+  private putNamesWithTaggedNames(content: string, names: string[]): string {
+    names.forEach((name) => {
+      content = content.split(name).join(this.wrapNameInTag(name));
+    });
+    return content;
   }
 }
 
