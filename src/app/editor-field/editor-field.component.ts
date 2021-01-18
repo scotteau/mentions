@@ -1,6 +1,5 @@
-import {AfterViewInit, Component, ElementRef, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {IUser, UserService} from '../user.service';
-import {EventEmitter} from '@angular/core';
 
 @Component({
   selector: 'app-editor-field',
@@ -14,12 +13,15 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   currentSelectedUser: IUser;
   mentionedUsersById = new Set<string>();
 
-  pattern_mention = /[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}/g;
-  pattern_tag = /<.+>[@#][\w'\-,.]{2,}[^0-9_!¡?÷?¿\\+=@#$%ˆ&*(){}|~<>;:[\]][\w'\-,.]{2,}<\/.+>/g;
+  patternName = /[@][\w]{2,}\s[\w]{2,}/;
+  patternWrapped = /<.+>[@][\w]{2,}\s[\w]{2,}<\/.+?>/;
+
+  htmlContent: string;
 
   @ViewChild('textarea') field: ElementRef;
 
-  constructor(private readonly userService: UserService) {
+  //region - hidden
+  constructor(private readonly userService: UserService, private readonly renderer: Renderer2) {
   }
 
   ngOnInit(): void {
@@ -28,30 +30,31 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-
   }
 
-  onItemSelected(user: IUser) {
+  onItemSelected(user: IUser): void {
     this.currentSelectedUser = user;
     this.mentionedUsersById.add(user.id);
-
-    // console.log(this.mentionedUsersById);
   }
 
-  onClosed() {
+  onClosed(): void {
+    this.field.nativeElement.innerHTML = this.htmlContent;
     this.moveCaret();
+    this.currentSelectedUser = null;
+    this.htmlContent = '';
   }
 
 
-  onSubmit() {
+  onSubmit(): void {
     const text = this.field.nativeElement.innerText;
 
     if (text && text.trim()) {
-      const result = text.match(this.pattern_mention);
+      const result = text.match(new RegExp(this.patternName, 'g'));
       const mentionedNames = result.map(u => u.split('@')[1]);
       const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
       const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
-      // console.log(mentionedUsers);
+
+      console.log(mentionedUsers);
     }
     this.clearField();
   }
@@ -65,8 +68,8 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
 
     // console.log(anchor);
 
-    let range = document.createRange();
-    let selection = window.getSelection();
+    const range = document.createRange();
+    const selection = window.getSelection();
 
     range.setStartAfter(anchor);
     range.collapse(true);
@@ -79,36 +82,58 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   private arrayToDictionary(users: IUser[]): { [id: string]: IUser } {
-    let dictionary: { [id: string]: IUser } = {};
+    const dictionary: { [id: string]: IUser } = {};
     users.forEach((user) => {
       dictionary[user.id] = user;
     });
     return dictionary;
   }
 
-  onContentChange(e: any) {
-    const innerHTML = e.target.innerHTML;
+// endregion
 
-    const roughParse = innerHTML.match(this.pattern_mention);
+  onInput(e: any): void {
+    let innerText: string = e.target.innerText;
 
-    if (roughParse) {
-      console.log(roughParse);
-      const mentionedNames = roughParse.map((u) => u.split('@')[1]);
-      const mentionedUsers = [...this.mentionedUsersById]
-        .map((id) => this.allUsersDictionary[id])
-        .filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
-
-      mentionedNames.forEach((name) => {
-        console.log(name);
-        const pattern = RegExp(`<.+>${name}<\/.+>`, 'g');
-
-      })
-
-
+    if (e.target.textContent === '') {
+      console.log("empty");
+      this.htmlContent = '';
+      this.renderer.setProperty(this.field.nativeElement, 'innerHTML', '');
+      return;
     }
+
+    const names = this.getMentionedNames(innerText);
+    this.htmlContent = this.putNamesWithTaggedNames(innerText, names);
   }
 
 
+  private findMentionedUsersData(names: string[]): IUser[] {
+    return [...this.mentionedUsersById]
+      .map((id) => this.allUsersDictionary[id])
+      .filter((user) => names.indexOf(user.displayName) >= 0);
+  }
 
+  private nameRegex(name: string, wrapped: boolean = false): RegExp {
+    return wrapped ? new RegExp(`^(<.+>${name}(<\/.+>)$)`) : new RegExp(`${name}`);
+  }
 
+  private wrapNameInTag(content: string): string {
+    return `<span class="mat-chip" contenteditable="false" spellcheck="false">${content}</span>`;
+  }
+
+  private getMentionedNames(content: string): string[] {
+    const mentions = content.match(new RegExp(this.patternName, 'g'));
+    const listOfUniqueNames = new Set<string>();
+    if (mentions) {
+      mentions.forEach((m) => listOfUniqueNames.add(m));
+    }
+    return [...listOfUniqueNames];
+  }
+
+  private putNamesWithTaggedNames(content: string, names: string[]): string {
+    names.forEach((name) => {
+      content = content.split(name).join(this.wrapNameInTag(name));
+    });
+    return content;
+  }
 }
+
