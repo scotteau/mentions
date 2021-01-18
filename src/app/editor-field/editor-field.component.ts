@@ -53,6 +53,8 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
       const mentionedNames = result.map(u => u.split('@')[1]);
       const everMentionedUsers = [...this.mentionedUsersById].map((id) => this.allUsersDictionary[id]);
       const mentionedUsers = everMentionedUsers.filter((user) => mentionedNames.indexOf(user.displayName) >= 0);
+
+      console.log(mentionedUsers);
     }
     this.clearField();
   }
@@ -115,7 +117,7 @@ export class EditorFieldComponent implements OnInit, AfterViewInit {
   }
 
   private wrapNameInTag(content: string): string {
-    return `<span class="mat-chip">${content}</span>&nbsp;`;
+    return `<span class="mat-chip" contenteditable="false" spellcheck="false">${content}</span>`;
   }
 
   private getMentionedNames(content: string): string[] {
